@@ -16,7 +16,7 @@ case class ConnectCommandHandler() extends CommandHandler {
       StompFrame(CONNECTED, headers, body)
 
     } catch {
-      case e: Exception => StompFrame.errorFrame(e.getMessage)
+      case e: FrameException => StompFrame.errorFrame(e.getMessage)
     }
   }
 
