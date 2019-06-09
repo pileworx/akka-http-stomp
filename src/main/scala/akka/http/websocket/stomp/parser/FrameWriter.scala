@@ -10,6 +10,6 @@ class FrameWriter {
       case Some(b: String) => b
       case None => ""
     }
-    s"${frame.command.toString}$headers\n\n$body^@"
+    s"${frame.command.toString}$headers\n\n$body${StompFrame.terminator}"
   }
 }
