@@ -5,9 +5,9 @@ Stomp specification support library for akka-http.
 
 Licensed under the Apache 2 license.
 
-[![Build Status](https://travis-ci.org/pileworx/akka-http-hal.svg?branch=master)](https://travis-ci.org/pileworx/akka-http-hal)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2b351c4ec64e441f8b1bbf6ea4db3492)](https://www.codacy.com/app/Pileworx/akka-http-hal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pileworx/akka-http-hal&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/2b351c4ec64e441f8b1bbf6ea4db3492)](https://www.codacy.com/app/Pileworx/akka-http-hal?utm_source=github.com&utm_medium=referral&utm_content=pileworx/akka-http-hal&utm_campaign=Badge_Coverage)
+[![Build Status](https://travis-ci.org/pileworx/akka-http-stomp.svg?branch=develop)](https://travis-ci.org/pileworx/akka-http-stomp)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c0ad753aa3974c4a9f38afec61d67fb3)](https://www.codacy.com/app/Pileworx/akka-http-stomp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pileworx/akka-http-stomp&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/c0ad753aa3974c4a9f38afec61d67fb3)](https://www.codacy.com/app/Pileworx/akka-http-stomp?utm_source=github.com&utm_medium=referral&utm_content=pileworx/akka-http-stomp&utm_campaign=Badge_Coverage)
 
 Getting Started
 ---------------
