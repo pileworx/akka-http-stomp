@@ -5,9 +5,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 class StompFrameSpec extends WordSpec with Matchers {
 
-  val bodyTerminator ="^@"
-  val invalidBody = "{\"foo\":\"bar\"}"
-  val validBody = s"$invalidBody${bodyTerminator}Comments"
+  val validBody = Some("{\"foo\":\"bar\"}")
   val headers = Some(Seq(StompHeader("Content-Type", "application/json")))
 
   "StompFrame" should {
@@ -17,21 +15,15 @@ class StompFrameSpec extends WordSpec with Matchers {
 
       frame.headers shouldBe headers
       frame.command shouldBe SEND
-      frame.body.get should include(invalidBody)
+      frame.body shouldBe validBody
     }
 
     "return a StompFrame from apply with no body" in {
-      val frame = StompFrame(CONNECT, headers, bodyTerminator)
+      val frame = StompFrame(CONNECT, headers, None)
 
       frame.headers shouldBe headers
       frame.command shouldBe CONNECT
       frame.body shouldBe None
-    }
-
-    "throw an exception if body is invalid" in {
-      a [FrameException] should be thrownBy {
-        StompFrame(SEND, headers, invalidBody)
-      }
     }
 
     "throw an exception if body is present and command is not send" in {

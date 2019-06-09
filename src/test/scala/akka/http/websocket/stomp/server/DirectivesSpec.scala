@@ -7,8 +7,8 @@ import Directives._
 
 class DirectivesSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
-  private val connectFrame = "CONNECT\naccept-version:1.0,1.1,1.2\nheart-beat:4000,4000\n\n^@"
-  private val connectedFrame = "CONNECTED\nversion:1.2\nheart-beat:0,0\n\n^@"
+  private val connectFrame = "CONNECT\naccept-version:1.0,1.1,1.2\nheart-beat:4000,4000\n\n\u0000"
+  private val connectedFrame = "CONNECTED\nversion:1.2\nheart-beat:0,0\n\n\u0000"
 
   val stompRoute =
     path("stomp") {

@@ -25,14 +25,14 @@ class TextFrameParser(val input: ParserInput) extends Parser with FrameParser[St
     StompFrame(
       parts(0).asInstanceOf[StompCommand],
       parts(1).asInstanceOf[Option[Seq[StompHeader]]],
-      parts(2).asInstanceOf[String])
+      parts(2).asInstanceOf[Option[String]])
 
   }
 
   private def flatten[H <: HList](h: H)(implicit ev: ToList[H, Any]) = h.toList[Any]
 
   private def frameParse = rule {
-    command ~ newLine ~ headers.? ~ newLine ~ newLine ~ body
+    command ~ newLine ~ headers.? ~ newLine ~ newLine ~ body.? ~ terminator
   }
 
   private def command: Rule1[StompCommand] = rule {
@@ -53,5 +53,9 @@ class TextFrameParser(val input: ParserInput) extends Parser with FrameParser[St
 
   private def body = rule {
     capture(CharPredicate.Printable.+)
+  }
+
+  private def terminator = rule {
+    StompFrame.terminator
   }
 }

@@ -15,22 +15,17 @@ case class StompFrame(command: StompCommand,
 }
 
 object StompFrame {
+    val terminator = "\u0000"
+
     def apply(command: StompCommand,
               headers: Option[Seq[StompHeader]],
-              body: String): StompFrame = {
-        val frame = StompFrame(command, headers, parseBody(body))
+              body: Option[String]): StompFrame = {
+        val frame = new StompFrame(command, headers, body)
         validateFrame(frame)
     }
 
     def errorFrame(msg: String): StompFrame = {
         StompFrame(ERROR, Some(Seq(StompHeader("content-type", "text/plain"))), Some(msg))
-    }
-
-    private def parseBody(body: String) = {
-        if(!body.contains("^@"))
-            throw FrameException("No termination characters found for frame.")
-        val bodyParts = body.split("\\^@")
-        if(bodyParts.isEmpty) None else Some(bodyParts(0))
     }
 
     private def validateFrame(frame: StompFrame): StompFrame = {
