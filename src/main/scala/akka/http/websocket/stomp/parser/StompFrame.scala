@@ -1,27 +1,8 @@
 package akka.http.websocket.stomp.parser
 
-object StompCommand extends Enumeration {
-  type StompCommand = Value
-  val STOMP,
-      CONNECT,
-      CONNECTED,
-      SEND,
-      SUBSCRIBE,
-      UNSUBSCRIBE,
-      BEGIN,
-      COMMIT,
-      ABORT,
-      ACK,
-      NACK,
-      DISCONNECT,
-      MESSAGE,
-      RECEIPT,
-      ERROR = Value
-}
+import akka.http.websocket.stomp.parser.StompCommand._
 
 case class StompHeader(name: String, value: String)
-
-import akka.http.websocket.stomp.parser.StompCommand._
 
 case class StompFrame(command: StompCommand,
                       headers: Option[Seq[StompHeader]],
@@ -41,7 +22,7 @@ object StompFrame {
         validateFrame(frame)
     }
 
-    def errorFrame(msg: String) = {
+    def errorFrame(msg: String): StompFrame = {
         StompFrame(ERROR, Some(Seq(StompHeader("content-type", "text/plain"))), Some(msg))
     }
 
