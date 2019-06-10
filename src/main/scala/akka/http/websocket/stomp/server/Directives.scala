@@ -28,9 +28,8 @@ object Directives {
   }
 
   def stomp(implicit materializer: Materializer): Route = {
-    handleWebSocketMessages(stompFlow)
-//    handleWebSocketMessagesForOptionalProtocol(stompFlow, Some("v12.stomp")) ~
-//    handleWebSocketMessagesForOptionalProtocol(stompFlow, Some("v11.stomp")) ~
-//    handleWebSocketMessagesForOptionalProtocol(stompFlow, Some("v10.stomp"))
+    handleWebSocketMessagesForOptionalProtocol(stompFlow, Some("v12.stomp")) ~
+    handleWebSocketMessagesForOptionalProtocol(stompFlow, Some("v11.stomp")) ~
+    handleWebSocketMessagesForOptionalProtocol(stompFlow, Some("v10.stomp"))
   }
 }

@@ -10,7 +10,6 @@ libraryDependencies ++= {
   val akkaV = "2.5.21"
   val akkaHttpV = "10.1.7"
   val parboiledV = "2.1.6"
-  val circeV = "0.10.0"
   
   Seq(
     "com.typesafe.akka" %% "akka-http-core" % akkaHttpV,
