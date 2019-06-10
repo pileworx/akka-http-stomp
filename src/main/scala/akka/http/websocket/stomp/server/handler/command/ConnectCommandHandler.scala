@@ -4,8 +4,7 @@ import akka.http.websocket.stomp.parser.{FrameException, StompFrame, StompHeader
 import akka.http.websocket.stomp.parser.StompCommand._
 
 case class ConnectCommandHandler() extends CommandHandler {
-  override def handle(frame: StompFrame): StompFrame = {
-
+  def handle(frame: StompFrame): Option[StompFrame] = {
     try {
       val headers: Option[Seq[StompHeader]] = Some(Seq(
         getVersionHeader(frame),
@@ -13,10 +12,10 @@ case class ConnectCommandHandler() extends CommandHandler {
 
       val body: Option[String] = None
 
-      StompFrame(CONNECTED, headers, body)
+      Some(StompFrame(CONNECTED, headers, body))
 
     } catch {
-      case e: FrameException => StompFrame.errorFrame(e.getMessage)
+      case e: FrameException => Some(StompFrame.errorFrame(e.getMessage))
     }
   }
 

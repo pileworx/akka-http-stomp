@@ -15,7 +15,10 @@ object Directives {
   private def stompFlow(implicit materializer: Materializer): Flow[Message, Message, Any] = {
     val flow = Flow[Message].mapConcat {
       case TextMessage.Strict(tm) =>
-        TextMessage(new FrameWriter().write(commandHandler.handle(new TextFrameParser(tm).parse()))) :: Nil
+        commandHandler.handle(new TextFrameParser(tm).parse()) match {
+          case Some(response) => TextMessage(new FrameWriter().write(response)) :: Nil
+          case None => Nil
+      }
       case bm: BinaryMessage =>
         bm.dataStream.runWith(Sink.ignore)
         Nil

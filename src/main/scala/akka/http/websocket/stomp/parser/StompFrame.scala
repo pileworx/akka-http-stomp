@@ -34,7 +34,7 @@ object StompFrame {
     }
 
     private def validateBody(frame: StompFrame): Unit = {
-        if(frame.command != SEND && frame.body.nonEmpty)
+        if(frame.command != SEND && frame.command != ERROR && frame.body.nonEmpty)
             throw FrameException(s"Command ${frame.command} must not contain a body.")
     }
 }
