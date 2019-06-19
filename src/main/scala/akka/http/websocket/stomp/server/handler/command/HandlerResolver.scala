@@ -1,21 +1,24 @@
 package akka.http.websocket.stomp.server.handler.command
+import akka.actor.ActorRef
 import akka.http.websocket.stomp.parser.StompCommand._
-import akka.http.websocket.stomp.parser.StompFrame
+import akka.http.websocket.stomp.parser.{ErrorFrame, StompFrame}
 
 class HandlerResolver extends CommandHandler {
 
-  override def handle(frame: StompFrame): Option[StompFrame] = {
+  def handle(frame: StompFrame, clientConnection: ActorRef): Unit = {
     if(HandlerResolver.handlers.contains(frame.command))
-      HandlerResolver.handlers(frame.command).handle(frame)
+      HandlerResolver.handlers(frame.command).handle(frame, clientConnection)
     else
-      Some(StompFrame.errorFrame(s"Command ${frame.command.toString} is not supported"))
+      clientConnection ! ErrorFrame(s"Command ${frame.command.toString} is not supported")
   }
 }
 
 object HandlerResolver {
   private val handlers = Map(
     CONNECT -> ConnectCommandHandler(),
+    STOMP -> ConnectCommandHandler(),
     SEND -> SendCommandHandler(),
+    SUBSCRIBE -> SubscribeCommandHandler(),
     DISCONNECT -> DisconnectCommandHandler()
   )
 }

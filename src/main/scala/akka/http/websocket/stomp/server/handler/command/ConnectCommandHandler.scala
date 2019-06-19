@@ -1,10 +1,13 @@
 package akka.http.websocket.stomp.server.handler.command
 
-import akka.http.websocket.stomp.parser.{FrameException, StompFrame, StompHeader}
+import akka.actor.ActorRef
 import akka.http.websocket.stomp.parser.StompCommand._
+import akka.http.websocket.stomp.parser.{ConnectedFrame, ErrorFrame, FrameException, StompFrame, StompHeader}
+import akka.http.websocket.stomp.server.channel.User
 
 case class ConnectCommandHandler() extends CommandHandler {
-  def handle(frame: StompFrame): Option[StompFrame] = {
+
+  def handle(frame: StompFrame, clientConnection: ActorRef): Unit = {
     try {
       val headers: Option[Seq[StompHeader]] = Some(Seq(
         getVersionHeader(frame),
@@ -12,16 +15,22 @@ case class ConnectCommandHandler() extends CommandHandler {
 
       val body: Option[String] = None
 
-      Some(StompFrame(CONNECTED, headers, body))
+      clientConnection ! ConnectedFrame(CONNECTED, headers, body)
 
     } catch {
-      case e: FrameException => Some(StompFrame.errorFrame(e.getMessage))
+      case e: FrameException => clientConnection ! ErrorFrame(e.getMessage)
     }
   }
 
   private def getVersionHeader(frame: StompFrame) = frame.getHeader("accept-version") match {
     case Some(vh: StompHeader) => StompHeader("version", getVersion(vh))
     case None => throw FrameException("No version header found for CONNECT")
+  }
+
+  private def authenticate(frame: StompFrame, clientConnection: ActorRef): Unit = {
+    frame.getHeader("login") match {
+      case Some(login) => clientConnection ! User(login.value)
+    }
   }
 
   private def getVersion(vh: StompHeader) = {
