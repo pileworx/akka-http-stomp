@@ -1,35 +1,81 @@
 package akka.http.websocket.stomp.parser
 
-import akka.http.websocket.stomp.parser.StompCommand._
 import org.scalatest.{Matchers, WordSpec}
+import akka.http.websocket.stomp.parser.StompCommand._
 
 class StompFrameSpec extends WordSpec with Matchers {
 
   val validBody = Some("{\"foo\":\"bar\"}")
-  val headers = Some(Seq(StompHeader("Content-Type", "application/json")))
+  val headers = Some(Seq(StompHeader("content-type", "application/json")))
 
-  "StompFrame" should {
+  "StompFrame getHeader" should {
 
-    "return a StompFrame from apply" in {
-      val frame = StompFrame(SEND, headers, validBody)
-
-      frame.headers shouldBe headers
-      frame.command shouldBe SEND
-      frame.body shouldBe validBody
+    "return Some header if header exists" in {
+      val frame = ConnectedFrame(headers, None)
+      frame.getHeader("content-type").get.value should equal("application/json")
     }
 
-    "return a StompFrame from apply with no body" in {
-      val frame = StompFrame(CONNECT, headers, None)
-
-      frame.headers shouldBe headers
-      frame.command shouldBe CONNECT
-      frame.body shouldBe None
+    "return None if header does not exists" in {
+      val frame = ConnectedFrame(headers, None)
+      frame.getHeader("destination") should equal(None)
     }
 
-    "throw an exception if body is present and command is not send" in {
+    "return None if headers do not exists" in {
+      val frame = ConnectedFrame(None, None)
+      frame.getHeader("destination") should equal(None)
+    }
+  }
+
+  "StompFrame terminator" should {
+
+    "return unicode null" in {
+      StompFrame.terminator should equal("\u0000")
+    }
+  }
+
+  "StompFrame errorOnBody" should {
+
+    "throw an exception if body exists" in {
       a [FrameException] should be thrownBy {
-        StompFrame(CONNECT, headers, validBody)
+        StompFrame.errorOnBody(CONNECT, Some("body"))
       }
+    }
+
+    "do nothing if body id None" in {
+      StompFrame.errorOnBody(CONNECT, None)
+    }
+  }
+
+  "StompFrame create" should {
+
+    "create a connect frame if CONNECT is the command" in {
+      val connect = StompFrame.create(CONNECT, None, None)
+
+      connect.command should equal(CONNECT)
+    }
+
+    "create a disconnect frame if DISCONNECT is the command" in {
+      val connect = StompFrame.create(DISCONNECT, None, None)
+
+      connect.command should equal(DISCONNECT)
+    }
+
+    "create a send frame if SEND is the command" in {
+      val connect = StompFrame.create(SEND, None, None)
+
+      connect.command should equal(SEND)
+    }
+
+    "create a subscribe frame if SUBSCRIBE is the command" in {
+      val connect = StompFrame.create(SUBSCRIBE, None, None)
+
+      connect.command should equal(SUBSCRIBE)
+    }
+
+    "create a error frame if frame does not match" in {
+      val connect = StompFrame.create(CONNECTED, None, None)
+
+      connect.command should equal(ERROR)
     }
   }
 }

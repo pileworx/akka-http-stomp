@@ -22,7 +22,7 @@ class TextFrameParser(val input: ParserInput) extends Parser with FrameParser[St
 
     val parts = flatten(parsed)
 
-    StompFrame(
+    StompFrame.create(
       parts(0).asInstanceOf[StompCommand],
       parts(1).asInstanceOf[Option[Seq[StompHeader]]],
       parts(2).asInstanceOf[Option[String]])
