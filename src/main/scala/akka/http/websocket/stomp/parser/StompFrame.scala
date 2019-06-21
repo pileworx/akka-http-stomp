@@ -30,6 +30,7 @@ object StompFrame {
             case DISCONNECT => DisconnectFrame(headers, body)
             case SEND => SendFrame(headers, body)
             case SUBSCRIBE => SubscribeFrame(headers, body)
+            case UNSUBSCRIBE => UnsubscribeFrame(headers, body)
             case _ => ErrorFrame(s"Command $command is not supported.")
         }
     }
@@ -86,8 +87,18 @@ case class SubscribeFrame(command: StompCommand,
                           body: Option[String]) extends StompClientFrame
 
 object SubscribeFrame {
-    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): SendFrame = {
-        SendFrame(SUBSCRIBE, headers, None)
+    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): SubscribeFrame = {
+        SubscribeFrame(SUBSCRIBE, headers, None)
+    }
+}
+
+case class UnsubscribeFrame(command: StompCommand,
+                            headers: Option[Seq[StompHeader]],
+                            body: Option[String]) extends StompClientFrame
+
+object UnsubscribeFrame {
+    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): UnsubscribeFrame = {
+        UnsubscribeFrame(UNSUBSCRIBE, headers, None)
     }
 }
 
