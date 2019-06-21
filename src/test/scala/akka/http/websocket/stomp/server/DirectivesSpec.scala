@@ -23,6 +23,8 @@ class DirectivesSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
   private val subscribeFrame = s"SUBSCRIBE\ndestination:$channelPath\nid:77\n\n\u0000"
 
+  private val unsubscribeFrame = s"UNSUBSCRIBE\nid:77\n\n\u0000"
+
   private val stompRoute = path("stomp") {
     stomp(
       topics = Seq(
@@ -100,6 +102,9 @@ class DirectivesSpec extends WordSpec with Matchers with ScalatestRouteTest {
         message should include(s"destination:$channelPath\n")
         message should include("content-type:text/plain\n")
         message should include("\n\nthis is my body\u0000")
+
+        wsClient.sendMessage(unsubscribeFrame)
+        wsClient.expectNoMessage(100.millis)
 
         wsClient.sendMessage(disconnectFrame)
         wsClient.expectMessage(receiptFrame)

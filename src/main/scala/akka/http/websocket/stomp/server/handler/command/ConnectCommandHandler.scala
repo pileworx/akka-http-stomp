@@ -1,7 +1,6 @@
 package akka.http.websocket.stomp.server.handler.command
 
 import akka.actor.ActorRef
-import akka.http.websocket.stomp.parser.StompCommand._
 import akka.http.websocket.stomp.parser.{ConnectedFrame, ErrorFrame, FrameException, StompFrame, StompHeader}
 import akka.http.websocket.stomp.server.channel.User
 
@@ -15,7 +14,7 @@ case class ConnectCommandHandler() extends CommandHandler {
 
       val body: Option[String] = None
 
-      clientConnection ! ConnectedFrame(CONNECTED, headers, body)
+      clientConnection ! ConnectedFrame(headers, body)
 
     } catch {
       case e: FrameException => clientConnection ! ErrorFrame(e.getMessage)

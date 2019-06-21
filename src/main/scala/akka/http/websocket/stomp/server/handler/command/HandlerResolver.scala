@@ -19,6 +19,7 @@ object HandlerResolver {
     STOMP -> ConnectCommandHandler(),
     SEND -> SendCommandHandler(),
     SUBSCRIBE -> SubscribeCommandHandler(),
+    UNSUBSCRIBE -> UnsubscribeCommandHandler(),
     DISCONNECT -> DisconnectCommandHandler()
   )
 }
