@@ -15,14 +15,17 @@ case class MessageEvent(destination: String,
 }
 
 object MessageEvent {
+  private val contentType = "content-type"
+  private val destination = "destination"
+
   def apply(frame: SendFrame, user: Option[String] = None): MessageEvent = {
-    val ct = frame.header("content-type") match {
-      case Some(h) => StompHeader("content-type", h.value)
-      case None => StompHeader("content-type", "text/plain")
+    val ct = frame.header(contentType) match {
+      case Some(h) => StompHeader(contentType, h.value)
+      case None => StompHeader(contentType, "text/plain")
     }
-    val ch = frame.header("destination") match {
-      case Some(h) => StompHeader("destination", h.value)
-      case None => StompHeader("destination", "")
+    val ch = frame.header(destination) match {
+      case Some(h) => StompHeader(destination, h.value)
+      case None => StompHeader(destination, "")
     }
     val id = StompHeader("message-id", UUID.randomUUID().toString)
 

@@ -14,6 +14,6 @@ class FrameWriter {
 }
 
 object FrameWriter {
-  private val newLine: String = "\n"
-  private val emptyString: String = ""
+  val newLine: String = "\n"
+  val emptyString: String = ""
 }
