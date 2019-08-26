@@ -1,7 +1,7 @@
 package akka.http.websocket.stomp.server.channel
 
-import akka.NotUsed
 import akka.actor.{Actor, ActorSystem}
+import akka.NotUsed
 import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.http.websocket.stomp.bus.event.MessageEvent
 import akka.http.websocket.stomp.parser.{FrameWriter, StompClientFrame, StompHeader, StompServerFrame, TextFrameParser, UnsubscribeFrame}
@@ -11,7 +11,6 @@ import akka.http.websocket.stomp.server.handler.command.CommandHandler
 import akka.stream.scaladsl.GraphDSL.Implicits._
 import akka.stream.scaladsl.{Flow, GraphDSL, Keep, Sink, Source}
 import akka.stream.{ActorMaterializer, FlowShape, OverflowStrategy}
-
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -67,7 +66,7 @@ class ClientConnectionActor(private val commandHandler: CommandHandler,
     subscriptions(me.destination).foreach(id => self ! me.withSubscriptionId(id).frame)
   }
 
-  def addDestination(frame: UnsubscribeFrame): UnsubscribeFrame = {
+  private[this] def addDestination(frame: UnsubscribeFrame): UnsubscribeFrame = {
     val headers:Seq[StompHeader] = frame.header("id") match {
       case Some(sid) =>
         subscriptions.collectFirst { case sub if sub._2.contains(sid.value) => sub._1 } match {
@@ -80,7 +79,7 @@ class ClientConnectionActor(private val commandHandler: CommandHandler,
     frame.copy(headers = headers)
   }
 
-  private def addSubscription(s: Subscribe): Unit = {
+  private[this] def addSubscription(s: Subscribe): Unit = {
     if (!subscriptions.contains(s.topic))
       subscriptions += s.topic -> mutable.ListBuffer()
 
