@@ -15,17 +15,17 @@ class StompFrameSpec extends WordSpec with Matchers {
 
     "return Some header if header exists" in {
       val frame = ConnectedFrame(headers, None)
-      frame.getHeader("content-type").get.value should equal("application/json")
+      frame.header("content-type").get.value should equal("application/json")
     }
 
     "return None if header does not exists" in {
       val frame = ConnectedFrame(headers, None)
-      frame.getHeader("destination") should equal(None)
+      frame.header("destination") should equal(None)
     }
 
     "return None if headers do not exists" in {
       val frame = ConnectedFrame(Seq(StompHeader("version", "1.2")), None)
-      frame.getHeader("destination") should equal(None)
+      frame.header("destination") should equal(None)
     }
   }
 

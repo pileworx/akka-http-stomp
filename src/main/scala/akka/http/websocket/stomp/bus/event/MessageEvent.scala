@@ -16,11 +16,11 @@ case class MessageEvent(destination: String,
 
 object MessageEvent {
   def apply(frame: SendFrame, user: Option[String] = None): MessageEvent = {
-    val ct = frame.getHeader("content-type") match {
+    val ct = frame.header("content-type") match {
       case Some(h) => StompHeader("content-type", h.value)
       case None => StompHeader("content-type", "text/plain")
     }
-    val ch = frame.getHeader("destination") match {
+    val ch = frame.header("destination") match {
       case Some(h) => StompHeader("destination", h.value)
       case None => StompHeader("destination", "")
     }

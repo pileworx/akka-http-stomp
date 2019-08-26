@@ -25,10 +25,10 @@ class MessageEventSpec extends WordSpec with Matchers {
       event.destination should equal(destination)
       event.user should equal(None)
       frame.body.get should equal(body)
-      frame.getHeader("destination").get.value should equal(destination)
-      frame.getHeader("content-type").get.value should equal(contentType)
-      frame.getHeader("subscription").get.value should equal(subscriptionId)
-      frame.getHeader("message-id").get.value should fullyMatch regex """([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}){1}"""
+      frame.header("destination").get.value should equal(destination)
+      frame.header("content-type").get.value should equal(contentType)
+      frame.header("subscription").get.value should equal(subscriptionId)
+      frame.header("message-id").get.value should fullyMatch regex """([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}){1}"""
     }
 
     "return a MessageEvent missing with an empty destination if the send frame is missing a destination" in {
@@ -40,7 +40,7 @@ class MessageEventSpec extends WordSpec with Matchers {
 
       val frame = MessageEvent(send).withSubscriptionId(subscriptionId).frame
 
-      frame.getHeader("destination").get.value should equal("")
+      frame.header("destination").get.value should equal("")
     }
 
     "return a MessageEvent with a default content-type if the send frame is missing content-type" in {
@@ -51,7 +51,7 @@ class MessageEventSpec extends WordSpec with Matchers {
 
       val frame = MessageEvent(send).withSubscriptionId(subscriptionId).frame
 
-      frame.getHeader("content-type").get.value should equal("text/plain")
+      frame.header("content-type").get.value should equal("text/plain")
     }
   }
 
@@ -66,8 +66,8 @@ class MessageEventSpec extends WordSpec with Matchers {
       val event = MessageEvent(destination, headers, Some(body), None)
       val frame = event.withSubscriptionId(subscriptionId).frame
 
-      frame.getHeader("content-type").get.value should equal(contentType)
-      frame.getHeader("subscription").get.value should equal(subscriptionId)
+      frame.header("content-type").get.value should equal(contentType)
+      frame.header("subscription").get.value should equal(subscriptionId)
     }
 
     "create subscription header if headers no not exist" in {
@@ -78,7 +78,7 @@ class MessageEventSpec extends WordSpec with Matchers {
       val event = MessageEvent(destination, headers, Some(body), None)
       val frame = event.withSubscriptionId(subscriptionId).frame
 
-      frame.getHeader("subscription").get.value should equal(subscriptionId)
+      frame.header("subscription").get.value should equal(subscriptionId)
     }
   }
 }

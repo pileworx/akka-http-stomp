@@ -2,6 +2,7 @@ package akka.http.websocket.stomp.parser
 
 import akka.http.websocket.stomp.parser.StompCommand._
 import akka.http.websocket.stomp.parser.StompHeader._
+import StompFrame._
 
 sealed trait StompFrame {
 
@@ -9,12 +10,13 @@ sealed trait StompFrame {
     val headers: Seq[StompHeader]
     val body: Option[String]
 
-    def getHeader(name: String): Option[StompHeader] =
+    def header(name: String): Option[StompHeader] =
         headers.collectFirst { case h if h.name.equalsIgnoreCase(name) => h }
 }
 
 object StompFrame {
     val terminator = "\u0000"
+    val commaSeparated = ", "
 
     def errorOnBody(command: StompCommand, body: Option[String]): Unit = {
         if(body.nonEmpty)
@@ -23,7 +25,7 @@ object StompFrame {
 
     def validateHeaders(command: StompCommand, required: Seq[String], headers: Seq[StompHeader]): Unit = {
         if(!StompHeader.containsHeaders(required, headers))
-            throw FrameException(s"Command $command must contain headers ${required.mkString(", ")}, only found ${headers.map(sh => sh.name).mkString(", ")}")
+            throw FrameException(s"Command $command must contain headers ${required.mkString(commaSeparated)}, only found ${headers.map(sh => sh.name).mkString(commaSeparated)}")
     }
 
     def create(command: StompCommand, headers: Seq[StompHeader], body: Option[String]): StompFrame = {
@@ -37,8 +39,6 @@ object StompFrame {
         }
     }
 }
-
-import StompFrame._
 
 sealed trait StompClientFrame extends StompFrame
 sealed trait StompServerFrame extends StompFrame

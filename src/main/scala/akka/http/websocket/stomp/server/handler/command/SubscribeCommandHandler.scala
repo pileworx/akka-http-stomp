@@ -7,8 +7,8 @@ import akka.http.websocket.stomp.server.channel.command.Subscribe
 
 case class SubscribeCommandHandler() extends CommandHandler {
   def handle(frame: StompFrame, clientConnection: ActorRef): Unit = {
-    frame.getHeader("destination") match {
-      case Some(dh) => frame.getHeader("id") match {
+    frame.header("destination") match {
+      case Some(dh) => frame.header("id") match {
         case Some(id) => ChannelRegistry.getTopic(dh.value) match {
           case Some(bus: LocalEventBus) =>
             bus.subscribe(clientConnection, true)

@@ -43,7 +43,7 @@ class ClientConnectionActor(private val commandHandler: CommandHandler,
     }
   }
 
-  private def createFlow: Flow[Message, TextMessage.Strict, NotUsed] = {
+  private[this] def createFlow: Flow[Message, TextMessage.Strict, NotUsed] = {
     val flow = Flow.fromGraph(GraphDSL.create() { implicit b =>
       val textMsgFlow = b.add(Flow[Message]
         .mapAsync(1) {
@@ -68,7 +68,7 @@ class ClientConnectionActor(private val commandHandler: CommandHandler,
   }
 
   def addDestination(frame: UnsubscribeFrame): UnsubscribeFrame = {
-    val headers:Seq[StompHeader] = frame.getHeader("id") match {
+    val headers:Seq[StompHeader] = frame.header("id") match {
       case Some(sid) =>
         subscriptions.collectFirst { case sub if sub._2.contains(sid.value) => sub._1 } match {
           case Some(channel) => frame.headers :+ StompHeader("destination", channel)

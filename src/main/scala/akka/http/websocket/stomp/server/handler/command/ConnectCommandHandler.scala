@@ -9,7 +9,7 @@ case class ConnectCommandHandler() extends CommandHandler {
   def handle(frame: StompFrame, clientConnection: ActorRef): Unit = {
     try {
       val headers = Seq(
-        getVersionHeader(frame),
+        versionHeader(frame),
         StompHeader("heart-beat", "0,0"))
 
       val body: Option[String] = None
@@ -21,14 +21,21 @@ case class ConnectCommandHandler() extends CommandHandler {
     }
   }
 
-  private def getVersionHeader(frame: StompFrame) = frame.getHeader("accept-version") match {
-    case Some(vh: StompHeader) => StompHeader("version", getVersion(vh))
+  private def versionHeader(frame: StompFrame) = frame.header("accept-version") match {
+    case Some(vh: StompHeader) => StompHeader("version", version(vh))
     case None => throw FrameException("No version header found for CONNECT")
   }
 
-  private def authenticate(frame: StompFrame, clientConnection: ActorRef): Unit =
-    frame.getHeader("login").foreach { login => clientConnection ! User(login.value) }
+  private[this] def authenticate(frame: StompFrame, clientConnection: ActorRef): Unit =
+    frame.header("login").foreach { login => clientConnection ! User(login.value) }
 
-  private def getVersion(vh: StompHeader) =
-    if (vh.value.contains(",")) vh.value.split(",").max else vh.value
+  private[this] def version(vh: StompHeader) =
+    if (vh.value.contains(ConnectCommandHandler.commaSeparated))
+      vh.value.split(ConnectCommandHandler.commaSeparated).max
+    else
+      vh.value
+}
+
+object ConnectCommandHandler {
+  val commaSeparated = ","
 }

@@ -8,7 +8,7 @@ case class SendCommandHandler() extends CommandHandler {
 
   def handle(frame: StompFrame, clientConnection: ActorRef): Unit = {
     val sendFrame: SendFrame = frame.asInstanceOf[SendFrame]
-    sendFrame.getHeader("destination") match {
+    sendFrame.header("destination") match {
       case Some(dh) =>
         ChannelRegistry.getTopic(dh.value) match {
           case Some(bus: LocalEventBus) => bus.publish(MessageEvent(sendFrame))

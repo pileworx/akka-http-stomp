@@ -12,7 +12,7 @@ case class DisconnectCommandHandler() extends CommandHandler{
   }
 
   def handleReceipt(frame: StompFrame, clientConnection: ActorRef): Unit = {
-    frame.getHeader("receipt").foreach { rh =>
+    frame.header("receipt").foreach { rh =>
       clientConnection ! ReceiptFrame(Seq(StompHeader("receipt-id", rh.value)))
     }
   }

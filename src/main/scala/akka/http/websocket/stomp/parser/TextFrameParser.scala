@@ -1,10 +1,9 @@
 package akka.http.websocket.stomp.parser
 
 import akka.http.websocket.stomp.parser.StompCommand.StompCommand
-import org.parboiled2.{CharPredicate, ErrorFormatter, ParseError, Parser, ParserInput, Rule1}
+import org.parboiled2._
 import shapeless.HList
 import shapeless.ops.hlist.ToList
-
 import scala.util.{Failure, Success}
 
 class TextFrameParser(val input: ParserInput) extends Parser with FrameParser[String] {
@@ -31,27 +30,31 @@ class TextFrameParser(val input: ParserInput) extends Parser with FrameParser[St
     command ~ newLine ~ headers ~ newLine ~ newLine ~ body.? ~ terminator
   }
 
-  private def command: Rule1[StompCommand] = rule {
+  private[this] def command: Rule1[StompCommand] = rule {
     capture("STOMP" | "CONNECT" | "SEND" | "SUBSCRIBE" | "UNSUBSCRIBE" | "BEGIN" | "COMMIT" | "ABORT" | "ACK" | "NACK" | "DISCONNECT") ~> ((cmd: String) => StompCommand.withName(cmd))
   }
 
-  private def headers: Rule1[Seq[StompHeader]] = rule {
+  private[this] def headers: Rule1[Seq[StompHeader]] = rule {
     header.+(newLine)
   }
 
-  private def header: Rule1[StompHeader] =  rule {
-    capture((CharPredicate.Alpha | "-").+) ~ ":" ~ capture(noneOf("\r\n").+) ~> ((n, v) => StompHeader(n,v))
+  private[this] def header: Rule1[StompHeader] =  rule {
+    capture((CharPredicate.Alpha | "-").+) ~ ":" ~ capture(noneOf(TextFrameParser.rn).+) ~> ((n, v) => StompHeader(n,v))
   }
 
-  private def newLine = rule {
-    "\r\n" | "\n"
+  private[this] def newLine = rule {
+    TextFrameParser.rn | "\n"
   }
 
-  private def body = rule {
+  private[this] def body = rule {
     capture(CharPredicate.Printable.+)
   }
 
-  private def terminator = rule {
+  private[this] def terminator = rule {
     StompFrame.terminator
   }
+}
+
+object TextFrameParser {
+  val rn = "\r\n"
 }
