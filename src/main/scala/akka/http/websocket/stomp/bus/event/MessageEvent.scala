@@ -15,8 +15,8 @@ case class MessageEvent(destination: String,
 }
 
 object MessageEvent {
-  private val contentType = "content-type"
-  private val destination = "destination"
+  private[this] val contentType = "content-type"
+  private[this] val destination = "destination"
 
   def apply(frame: SendFrame, user: Option[String] = None): MessageEvent = {
     val ct = frame.header(contentType) match {
