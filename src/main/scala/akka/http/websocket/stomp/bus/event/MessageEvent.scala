@@ -1,8 +1,7 @@
 package akka.http.websocket.stomp.bus.event
 
-import java.util.UUID
-
 import akka.http.websocket.stomp.parser.{MessageFrame, SendFrame, StompHeader}
+import java.util.UUID
 
 case class MessageEvent(destination: String,
                         headers: Seq[StompHeader],

@@ -10,7 +10,7 @@ case class SendCommandHandler() extends CommandHandler {
     val sendFrame: SendFrame = frame.asInstanceOf[SendFrame]
     sendFrame.header("destination") match {
       case Some(dh) =>
-        ChannelRegistry.getTopic(dh.value) match {
+        ChannelRegistry.topic(dh.value) match {
           case Some(bus: LocalEventBus) => bus.publish(MessageEvent(sendFrame))
           case _ => clientConnection ! ErrorFrame(s"No destination found matching ${dh.name}.")
         }

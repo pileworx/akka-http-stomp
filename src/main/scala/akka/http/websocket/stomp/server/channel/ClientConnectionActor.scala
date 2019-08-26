@@ -63,7 +63,7 @@ class ClientConnectionActor(private val commandHandler: CommandHandler,
     flow
   }
 
-  private def sendMessage(me: MessageEvent): Unit = {
+  private[this] def sendMessage(me: MessageEvent): Unit = {
     subscriptions(me.destination).foreach(id => self ! me.withSubscriptionId(id).frame)
   }
 
@@ -88,7 +88,7 @@ class ClientConnectionActor(private val commandHandler: CommandHandler,
       subscriptions(s.topic) += s.id
   }
 
-  private def removeSubscription(u: Unsubscribe): Unit = {
+  private[this] def removeSubscription(u: Unsubscribe): Unit = {
     subscriptions.get(u.topic).foreach { topic =>
       if (topic.contains(u.id)) topic.remove(topic.indexOf(u.id))
       if (topic.length < 1) subscriptions.remove(u.topic)

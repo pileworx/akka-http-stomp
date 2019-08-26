@@ -21,7 +21,7 @@ case class ConnectCommandHandler() extends CommandHandler {
     }
   }
 
-  private def versionHeader(frame: StompFrame) = frame.header("accept-version") match {
+  private[this] def versionHeader(frame: StompFrame) = frame.header("accept-version") match {
     case Some(vh: StompHeader) => StompHeader("version", version(vh))
     case None => throw FrameException("No version header found for CONNECT")
   }

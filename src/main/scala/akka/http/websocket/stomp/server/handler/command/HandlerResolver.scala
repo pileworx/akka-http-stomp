@@ -1,5 +1,6 @@
 package akka.http.websocket.stomp.server.handler.command
 import akka.actor.ActorRef
+import akka.http.websocket.stomp.parser
 import akka.http.websocket.stomp.parser.StompCommand._
 import akka.http.websocket.stomp.parser.{ErrorFrame, StompFrame}
 
@@ -14,7 +15,7 @@ class HandlerResolver extends CommandHandler {
 }
 
 object HandlerResolver {
-  private val handlers = Map(
+  val handlers: Map[parser.StompCommand.Value, CommandHandler] = Map(
     CONNECT -> ConnectCommandHandler(),
     STOMP -> ConnectCommandHandler(),
     SEND -> SendCommandHandler(),
