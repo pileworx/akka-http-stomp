@@ -9,7 +9,7 @@ case class SubscribeCommandHandler() extends CommandHandler {
   def handle(frame: StompFrame, clientConnection: ActorRef): Unit = {
     frame.header("destination") match {
       case Some(dh) => frame.header("id") match {
-        case Some(id) => ChannelRegistry.getTopic(dh.value) match {
+        case Some(id) => ChannelRegistry.topic(dh.value) match {
           case Some(bus: LocalEventBus) =>
             bus.subscribe(clientConnection, true)
             clientConnection ! Subscribe(dh.value, id.value)

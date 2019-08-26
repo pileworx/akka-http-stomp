@@ -10,17 +10,16 @@ import akka.http.websocket.stomp.server.handler.command.HandlerResolver
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
-
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 object Directives {
 
   case object GetWebsocketFlow
 
-  private val commandHandler = new HandlerResolver
-  private val frameWriter = new FrameWriter
+  private[this] val commandHandler = new HandlerResolver
+  private[this] val frameWriter = new FrameWriter
 
   def stomp(topics: Seq[String] = Seq(),
             queues: Map[String, ActorRef] = Map())

@@ -2,9 +2,9 @@ package akka.http.websocket.stomp.parser
 
 import akka.http.websocket.stomp.parser.StompCommand.StompCommand
 import org.parboiled2._
+import scala.util.{Failure, Success}
 import shapeless.HList
 import shapeless.ops.hlist.ToList
-import scala.util.{Failure, Success}
 
 class TextFrameParser(val input: ParserInput) extends Parser with FrameParser[String] {
 
