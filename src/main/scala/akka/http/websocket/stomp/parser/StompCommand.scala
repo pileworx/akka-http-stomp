@@ -2,18 +2,21 @@ package akka.http.websocket.stomp.parser
 
 object StompCommand extends Enumeration {
   type StompCommand = Value
-  val STOMP,
+  val
+  // Client
+  STOMP,
   CONNECT,
-  CONNECTED,
-  SEND,
+  DISCONNECT,
   SUBSCRIBE,
   UNSUBSCRIBE,
+  SEND,
+  ACK,
+  NACK,
   BEGIN,
   COMMIT,
   ABORT,
-  ACK,
-  NACK,
-  DISCONNECT,
+  // Server
+  CONNECTED,
   MESSAGE,
   RECEIPT,
   ERROR = Value

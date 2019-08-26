@@ -5,17 +5,13 @@ import java.util.UUID
 import akka.http.websocket.stomp.parser.{MessageFrame, SendFrame, StompHeader}
 
 case class MessageEvent(destination: String,
-                        frame: MessageFrame,
+                        headers: Seq[StompHeader],
+                        body: Option[String],
                         user: Option[String]) {
-  def withSubscriptionId(id: String): MessageEvent = {
-    val subIdHeader = StompHeader("subscription", id)
-    def headers: Seq[StompHeader] = frame.headers match {
-      case Some(hs) => hs :+ subIdHeader
-      case None => Seq(subIdHeader)
-    }
-    val idFrame = frame.copy(headers = Some(headers))
-    copy(frame = idFrame)
-  }
+
+  def frame: MessageFrame = MessageFrame(headers, body)
+
+  def withSubscriptionId(id: String): MessageEvent = copy(headers = headers :+ StompHeader("subscription", id))
 }
 
 object MessageEvent {
@@ -32,8 +28,6 @@ object MessageEvent {
 
     val headers = Seq(ct, id, ch)
 
-    val response = MessageFrame(Some(headers), frame.body)
-
-    MessageEvent(ch.value, response, user)
+    MessageEvent(ch.value, headers, frame.body, user)
   }
 }

@@ -13,13 +13,13 @@ class FrameWriterSpec extends WordSpec with Matchers {
   )
 
   private val serializedFull = s"SEND\ndestination:$destination\ncontent-type:$contentType\n\n${body}\u0000"
-  private val serializedNoHeaders = s"SEND\n\n${body}\u0000"
+  private val serializedNoHeaders = s"DISCONNECT\n\n\n\u0000"
   private val serializedNoBody = s"SEND\ndestination:$destination\ncontent-type:$contentType\n\n\u0000"
 
   "FrameWriter write" should {
 
     "serialize a frame class into a string with headers and body" in {
-      val frame = SendFrame(Some(headers), Some(body))
+      val frame = SendFrame(headers, Some(body))
 
       val serialized = new FrameWriter().write(frame)
 
@@ -27,7 +27,7 @@ class FrameWriterSpec extends WordSpec with Matchers {
     }
 
     "serialize a frame class into a string without headers" in {
-      val frame = SendFrame(None, Some(body))
+      val frame = DisconnectFrame(Seq(), None)
 
       val serialized = new FrameWriter().write(frame)
 
@@ -35,7 +35,7 @@ class FrameWriterSpec extends WordSpec with Matchers {
     }
 
     "serialize a frame class into a string without a body" in {
-      val frame = SendFrame(Some(headers), None)
+      val frame = SendFrame(headers, None)
 
       val serialized = new FrameWriter().write(frame)
 

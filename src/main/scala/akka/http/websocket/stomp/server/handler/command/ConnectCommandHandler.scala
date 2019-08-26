@@ -8,9 +8,9 @@ case class ConnectCommandHandler() extends CommandHandler {
 
   def handle(frame: StompFrame, clientConnection: ActorRef): Unit = {
     try {
-      val headers: Option[Seq[StompHeader]] = Some(Seq(
+      val headers = Seq(
         getVersionHeader(frame),
-        StompHeader("heart-beat", "0,0")))
+        StompHeader("heart-beat", "0,0"))
 
       val body: Option[String] = None
 
@@ -26,16 +26,9 @@ case class ConnectCommandHandler() extends CommandHandler {
     case None => throw FrameException("No version header found for CONNECT")
   }
 
-  private def authenticate(frame: StompFrame, clientConnection: ActorRef): Unit = {
-    frame.getHeader("login") match {
-      case Some(login) => clientConnection ! User(login.value)
-    }
-  }
+  private def authenticate(frame: StompFrame, clientConnection: ActorRef): Unit =
+    frame.getHeader("login").foreach { login => clientConnection ! User(login.value) }
 
-  private def getVersion(vh: StompHeader) = {
-    if (vh.value.contains(","))
-      vh.value.split(",").max
-    else
-      vh.value
-  }
+  private def getVersion(vh: StompHeader) =
+    if (vh.value.contains(",")) vh.value.split(",").max else vh.value
 }

@@ -6,7 +6,10 @@ import akka.http.websocket.stomp.parser.StompCommand._
 class StompFrameSpec extends WordSpec with Matchers {
 
   val validBody = Some("{\"foo\":\"bar\"}")
-  val headers = Some(Seq(StompHeader("content-type", "application/json")))
+  val headers: Seq[StompHeader] = Seq(
+    StompHeader("version", "1.2"),
+    StompHeader("content-type", "application/json")
+  )
 
   "StompFrame getHeader" should {
 
@@ -21,7 +24,7 @@ class StompFrameSpec extends WordSpec with Matchers {
     }
 
     "return None if headers do not exists" in {
-      val frame = ConnectedFrame(None, None)
+      val frame = ConnectedFrame(Seq(StompHeader("version", "1.2")), None)
       frame.getHeader("destination") should equal(None)
     }
   }
@@ -49,31 +52,31 @@ class StompFrameSpec extends WordSpec with Matchers {
   "StompFrame create" should {
 
     "create a connect frame if CONNECT is the command" in {
-      val connect = StompFrame.create(CONNECT, None, None)
+      val connect = StompFrame.create(CONNECT, Seq(StompHeader("accept-version", "1.0,1.1,1.2"), StompHeader("host", "localhost")), None)
 
       connect.command should equal(CONNECT)
     }
 
     "create a disconnect frame if DISCONNECT is the command" in {
-      val connect = StompFrame.create(DISCONNECT, None, None)
+      val connect = StompFrame.create(DISCONNECT, Seq(), None)
 
       connect.command should equal(DISCONNECT)
     }
 
     "create a send frame if SEND is the command" in {
-      val connect = StompFrame.create(SEND, None, None)
+      val connect = StompFrame.create(SEND, Seq(StompHeader("destination", "/topic")), None)
 
       connect.command should equal(SEND)
     }
 
     "create a subscribe frame if SUBSCRIBE is the command" in {
-      val connect = StompFrame.create(SUBSCRIBE, None, None)
+      val connect = StompFrame.create(SUBSCRIBE, Seq(StompHeader("destination", "/topic"),StompHeader("id", "1234")), None)
 
       connect.command should equal(SUBSCRIBE)
     }
 
     "create a error frame if frame does not match" in {
-      val connect = StompFrame.create(CONNECTED, None, None)
+      val connect = StompFrame.create(CONNECTED, Seq(), None)
 
       connect.command should equal(ERROR)
     }

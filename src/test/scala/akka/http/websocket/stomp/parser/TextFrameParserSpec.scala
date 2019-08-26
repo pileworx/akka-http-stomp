@@ -4,7 +4,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 class TextFrameParserSpec extends WordSpec with Matchers {
 
-  private val validFrame = "CONNECT\naccept-version:1.0,1.1,1.2\nheart-beat:4000,4000\n\n\u0000"
+  private val validFrame = "CONNECT\naccept-version:1.0,1.1,1.2\nheart-beat:4000,4000\nhost:localhost\n\n\u0000"
   private val improperFrame = "CONNECT\naccept-version:1.0,1.1,1.2\nheart-beat:4000,4000\n{\"foo\":\"bar\"}\u0000"
 
   "TextFrameParser" should {
@@ -15,10 +15,10 @@ class TextFrameParserSpec extends WordSpec with Matchers {
 
       result shouldBe ConnectFrame(
         StompCommand.CONNECT,
-        Some(Seq(
+        Seq(
           StompHeader("accept-version", "1.0,1.1,1.2"),
-          StompHeader("heart-beat", "4000,4000")
-        )),
+          StompHeader("heart-beat", "4000,4000"),
+          StompHeader("host", "localhost")),
         None)
     }
 
