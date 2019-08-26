@@ -8,15 +8,12 @@ case class SendCommandHandler() extends CommandHandler {
 
   def handle(frame: StompFrame, clientConnection: ActorRef): Unit = {
     val sendFrame: SendFrame = frame.asInstanceOf[SendFrame]
-    sendFrame.getHeader("destination") match {
+    sendFrame.header("destination") match {
       case Some(dh) =>
-          if (ChannelRegistry.hasTopic(dh.value)) {
-            ChannelRegistry.getTopic(dh.value) match {
-              case Some(bus: LocalEventBus) => bus.publish(MessageEvent(sendFrame))
-            }
-          } else {
-            clientConnection ! ErrorFrame(s"No channel found matching ${dh.name}.")
-      }
+        ChannelRegistry.getTopic(dh.value) match {
+          case Some(bus: LocalEventBus) => bus.publish(MessageEvent(sendFrame))
+          case _ => clientConnection ! ErrorFrame(s"No destination found matching ${dh.name}.")
+        }
       case None => clientConnection ! ErrorFrame("No destination header found in SEND command.")
     }
   }

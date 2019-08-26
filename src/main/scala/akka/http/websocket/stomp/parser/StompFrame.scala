@@ -1,30 +1,34 @@
 package akka.http.websocket.stomp.parser
 
 import akka.http.websocket.stomp.parser.StompCommand._
-
-case class StompHeader(name: String, value: String)
+import akka.http.websocket.stomp.parser.StompHeader._
+import StompFrame._
 
 sealed trait StompFrame {
 
     val command: StompCommand
-    val headers: Option[Seq[StompHeader]]
+    val headers: Seq[StompHeader]
     val body: Option[String]
 
-    def getHeader(name: String): Option[StompHeader] = headers match {
-        case Some(hl) => hl.collectFirst { case h if h.name.equalsIgnoreCase(name) => h }
-        case None => None
-    }
+    def header(name: String): Option[StompHeader] =
+        headers.collectFirst { case h if h.name.equalsIgnoreCase(name) => h }
 }
 
 object StompFrame {
     val terminator = "\u0000"
+    val commaSeparated = ", "
 
     def errorOnBody(command: StompCommand, body: Option[String]): Unit = {
         if(body.nonEmpty)
             throw FrameException(s"Command $command must not contain a body.")
     }
 
-    def create(command: StompCommand, headers: Option[Seq[StompHeader]], body: Option[String]): StompFrame = {
+    def validateHeaders(command: StompCommand, required: Seq[String], headers: Seq[StompHeader]): Unit = {
+        if(!StompHeader.containsHeaders(required, headers))
+            throw FrameException(s"Command $command must contain headers ${required.mkString(commaSeparated)}, only found ${headers.map(sh => sh.name).mkString(commaSeparated)}")
+    }
+
+    def create(command: StompCommand, headers: Seq[StompHeader], body: Option[String]): StompFrame = {
         command match {
             case CONNECT => ConnectFrame(headers, body)
             case DISCONNECT => DisconnectFrame(headers, body)
@@ -40,95 +44,102 @@ sealed trait StompClientFrame extends StompFrame
 sealed trait StompServerFrame extends StompFrame
 
 case class ConnectFrame(command: StompCommand,
-                        headers: Option[Seq[StompHeader]],
+                        headers: Seq[StompHeader],
                         body: Option[String]) extends StompClientFrame
 
 object ConnectFrame {
-    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): ConnectFrame = {
-        StompFrame.errorOnBody(CONNECT, body)
+    def apply(headers: Seq[StompHeader], body: Option[String]): ConnectFrame = {
+        validateHeaders(CONNECT, Seq(acceptVersion, host), headers)
+        errorOnBody(CONNECT, body)
         ConnectFrame(CONNECT, headers, None)
     }
 }
 
 case class ConnectedFrame(command: StompCommand,
-                          headers: Option[Seq[StompHeader]],
+                          headers: Seq[StompHeader],
                           body: Option[String]) extends StompServerFrame
 
 object ConnectedFrame {
-    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): ConnectedFrame = {
-        StompFrame.errorOnBody(CONNECTED, body)
+    def apply(headers: Seq[StompHeader], body: Option[String]): ConnectedFrame = {
+        validateHeaders(CONNECT, Seq(version), headers)
+        errorOnBody(CONNECTED, body)
         ConnectedFrame(CONNECTED, headers, None)
     }
 }
 
 case class DisconnectFrame(command: StompCommand,
-                           headers: Option[Seq[StompHeader]],
+                           headers: Seq[StompHeader],
                            body: Option[String]) extends StompClientFrame
 
 object DisconnectFrame {
-    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): DisconnectFrame = {
-        StompFrame.errorOnBody(DISCONNECT, body)
+    def apply(headers: Seq[StompHeader], body: Option[String]): DisconnectFrame = {
+        errorOnBody(DISCONNECT, body)
         DisconnectFrame(DISCONNECT, headers, None)
     }
 }
 
 case class SendFrame(command: StompCommand,
-                     headers: Option[Seq[StompHeader]],
+                     headers: Seq[StompHeader],
                      body: Option[String]) extends StompClientFrame
 
 object SendFrame {
-    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): SendFrame = {
+    def apply(headers: Seq[StompHeader], body: Option[String]): SendFrame = {
+        validateHeaders(SEND, Seq(destination), headers)
         SendFrame(SEND, headers, body)
     }
 }
 
 case class SubscribeFrame(command: StompCommand,
-                          headers: Option[Seq[StompHeader]],
+                          headers: Seq[StompHeader],
                           body: Option[String]) extends StompClientFrame
 
 object SubscribeFrame {
-    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): SubscribeFrame = {
+    def apply(headers: Seq[StompHeader], body: Option[String]): SubscribeFrame = {
+        validateHeaders(SUBSCRIBE, Seq(destination, id), headers)
         SubscribeFrame(SUBSCRIBE, headers, None)
     }
 }
 
 case class UnsubscribeFrame(command: StompCommand,
-                            headers: Option[Seq[StompHeader]],
+                            headers: Seq[StompHeader],
                             body: Option[String]) extends StompClientFrame
 
 object UnsubscribeFrame {
-    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): UnsubscribeFrame = {
+    def apply(headers: Seq[StompHeader], body: Option[String]): UnsubscribeFrame = {
+        validateHeaders(UNSUBSCRIBE, Seq(id), headers)
         UnsubscribeFrame(UNSUBSCRIBE, headers, None)
     }
 }
 
 case class MessageFrame(command: StompCommand,
-                        headers: Option[Seq[StompHeader]],
+                        headers: Seq[StompHeader],
                         body: Option[String]) extends StompServerFrame
 
 object MessageFrame {
-    def apply(headers: Option[Seq[StompHeader]], body: Option[String]): MessageFrame = {
+    def apply(headers: Seq[StompHeader], body: Option[String]): MessageFrame = {
+        validateHeaders(MESSAGE, Seq(destination, messageId, subscription), headers)
         MessageFrame(MESSAGE, headers, body)
     }
 }
 
 case class ReceiptFrame(command: StompCommand,
-                        headers: Option[Seq[StompHeader]],
+                        headers: Seq[StompHeader],
                         body: Option[String]) extends StompServerFrame
 
 object ReceiptFrame {
-    def apply(headers: Option[Seq[StompHeader]]): ReceiptFrame = {
+    def apply(headers: Seq[StompHeader]): ReceiptFrame = {
+        validateHeaders(RECEIPT, Seq(receiptId), headers)
         ReceiptFrame(RECEIPT, headers, None)
     }
 }
 
 case class ErrorFrame(command: StompCommand,
-                      headers: Option[Seq[StompHeader]],
+                      headers: Seq[StompHeader],
                       body: Option[String]) extends StompServerFrame
 
-object ErrorFrame {
-    def apply(msg: String): ErrorFrame = {
-        ErrorFrame(ERROR, Some(Seq(StompHeader("content-type", "text/plain"))), Some(msg))
+object ErrorFrame { 
+    def apply(msg: String, headers: Seq[StompHeader] = Seq()): ErrorFrame = {
+        ErrorFrame(ERROR, Seq(StompHeader("message", msg)) ++ headers, None)
     }
 }
 
